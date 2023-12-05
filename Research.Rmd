@@ -123,4 +123,40 @@ round(prop.table(ftable$n)*100, digits = 2)
 ```
 
 
+## WORLD MAP
+#I need the world data 
+```{r}
+world <- ne_countries(scale = "medium", returnclass = "sf")
+```
+
+# Selecting only the data that I want to plot in the map: country and iq level
+```{r}
+data <- IQdataset %>% 
+  group_by(Country) %>% 
+  summarize(Average_IQ = IQlevel) %>% 
+  mutate(Iso3 = countrycode::countrycode(
+    sourcevar = Country,
+    origin = "country.name",
+    destination = "iso3c")
+  )
+```
+
+# Dropping Granade since I don't have it in the world dataframe
+```{r}
+data <- drop_na(data)
+sum(is.na(data))
+```
+
+# Merging the world and the data dataframes trough ISO code
+```{r}
+IQmap_data <-world %>% 
+  select(geometry, name, iso_a3) %>% 
+  left_join(data, by = c("iso_a3" = "Iso3")) %>% 
+  drop_na()
+```
+
+```{r}
+remove(data)
+```
+
 
