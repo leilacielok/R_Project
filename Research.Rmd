@@ -159,4 +159,48 @@ IQmap_data <-world %>%
 remove(data)
 ```
 
+# MAPPING
+```{r}
+world_map <- world %>% 
+  filter(admin != "Antarctica") %>% 
+  st_transform(crs = "+proj=robin") %>% 
+  ggplot() +
+  geom_sf(color = "grey") +
+  geom_sf(data = IQmap_data, aes(fill = Average_IQ)) +
+  scale_fill_brewer(type = "seq", palette = 4, direction = -1, aesthetics = "fill") +
+  coord_sf(datum = NA) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"),
+        axis.text.x = element_text(),
+        legend.position = "right") +
+  labs(title = "World Countries IQ",
+       x = NULL, y = NULL,
+       caption = "Average IQ levels per Country")
+
+world_map
+```
+
+# For having different maps depending on the IQ level
+```{r}
+level_maps <- world %>% 
+  filter(admin != "Antarctica") %>% 
+  st_transform(crs = "+proj=robin") %>% 
+  ggplot() +
+  geom_sf(color = "grey") +
+  geom_sf(data = IQmap_data, aes(fill = "Average.IQ")) +
+  facet_wrap(~Average_IQ) +
+  scale_fill_manual(values = "royalblue") +
+  coord_sf(datum = NA) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"),
+        axis.text.x = element_text(),
+        legend.position = "none") +
+  labs(title = "Levels of IQ",
+       x = NULL, y = NULL,
+       caption = "Average IQ levels per Country")
+
+level_maps
+```
+
+
 
