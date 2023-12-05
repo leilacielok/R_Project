@@ -1,0 +1,314 @@
+## Packages needed: tidyverse, sf, rnaturalearth, countrycode, ggrepel, RNATURALEARTHDATA
+```{r}
+install.packages("tidyverse")
+install.packages("sf")
+install.packages("rnaturalearth")
+install.packages("ggrepel")
+install.packages("countrycode")
+install.packages("ggplot2")
+```
+
+```{r}
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(ggrepel)
+library(countrycode)
+library(ggplot2)
+```
+
+#Importing the datasets
+```{r}
+avgIQ <- read.csv("C:/Users/Leila/OneDrive/Desktop/Rproject/AvgIQpercountry.csv")
+EduExp <- read.csv("C:/Users/Leila/OneDrive/Desktop/Rproject/expenditureoneducation.csv")
+IQclass <- read.csv("C:/Users/Leila/OneDrive/Desktop/Rproject/IQclassification.csv")
+```
+
+# Display the datasets
+```{r}
+head(avgIQ)
+head(IQclass)
+head(EduExp)
+```
+
+# Remove both duplicates and n/a
+```{r}
+avgIQ <- avgIQ %>%
+  distinct() %>%
+  drop_na()
+IQclass <- IQclass %>% 
+  distinct() %>% 
+  drop_na()
+EduExp <- EduExp %>% 
+  drop_na()
+
+sum(is.na(avgIQ))
+sum(duplicated(avgIQ))
+sum(is.na(IQclass))
+sum(duplicated(IQclass))
+sum(is.na(EduExp))
+sum(duplicated(EduExp))
+```
+
+# Count number of unique observations
+```{r}
+unique(avgIQ)
+unique(IQclass)
+unique(EduExp)
+```
+
+# Formatting the dataset: changing population into a numeric variable.
+```{r}
+avgIQ$Population...2023 <- as.numeric(as.character(avgIQ$Population...2023))
+class(avgIQ$Population...2023)
+
+```
+
+# Manipulating the datasets: merging GovExp to avgIQ dataset
+```{r}
+vars <- c("id", "Rank", "Country", "Average.IQ", "Continent", "Literacy.Rate", "Nobel.Prices", "HDI..2021.", "Mean.years.of.schooling...2021", "GNI...2021", "Population...2023", "Latitude", "Longitude" )
+
+avgIQ <- avgIQ %>% 
+  left_join(EduExp, by = "id") %>% 
+  select(all_of(vars), "GovExp")
+```
+
+#Removing what I don't need anymore
+```{r}
+remove(vars)
+remove(EduExp)
+```
+
+# Data Transformation to create df for level of IQ
+```{r}
+IQdataset <- avgIQ %>% 
+  group_by(id, Country) %>% 
+  mutate(IQlevel = case_when(
+    Average.IQ >= 178.00 ~ "Genius",
+    Average.IQ >= 160.00 ~ "Almost genius",
+    Average.IQ >= 140.00 ~ "Very gifted",
+    Average.IQ >= 130.00 ~ "Gifted",
+    Average.IQ >= 120.00 ~ "Moderately gifted",
+    Average.IQ >= 120.00 ~ "Above average",
+    Average.IQ >= 90.00 ~ "Average intelligence",
+    Average.IQ >= 85.00 ~ "Below average",
+    Average.IQ >= 70.00 ~ "Borderline intellectual functioning",
+        Average.IQ >= 50.00 ~ "Mid intellectual disability",
+    Average.IQ >= 35.00 ~ "Moderate intellectual disability",
+        Average.IQ >= 20.00 ~ "Severe intellectual disability",
+    Average.IQ >= 0.00 ~ "Profound intellectual disability", )) 
+
+head(IQdataset)
+
+```
+
+```{r}
+remove(avgIQ)
+```
+
+# Ordering the IQ dataset 
+```{r}
+IQdataset <- IQdataset %>% 
+  relocate(Continent, Latitude, Longitude, Population...2023, .before = Average.IQ) %>% 
+  relocate(Rank, IQlevel, .after = Average.IQ) %>% 
+  relocate(HDI..2021., .before = GNI...2021)
+head(IQdataset)
+```
+
+# I want to calculate the percentages I have in my sample in order to confirm its reliability.
+```{r}
+# First, I calculate frequencies:
+ftable <- fct_count(IQdataset$IQlevel)
+# then, I calculate the percentages:
+round(prop.table(ftable$n)*100, digits = 2)
+```
+
+## WORLD MAP
+
+#I need the world data 
+```{r}
+world <- ne_countries(scale = "medium", returnclass = "sf")
+```
+
+# Selecting only the data that I want to plot in the map: country and iq level
+```{r}
+data <- IQdataset %>% 
+  group_by(Country) %>% 
+  summarize(Average_IQ = IQlevel) %>% 
+  mutate(Iso3 = countrycode::countrycode(
+    sourcevar = Country,
+    origin = "country.name",
+    destination = "iso3c")
+  )
+```
+
+# Drop Granade that I don't have in the world dataframe
+```{r}
+data <- drop_na(data)
+sum(is.na(data))
+```
+
+# Merging the world and the data dataframes trough ISO code
+```{r}
+IQmap_data <-world %>% 
+  select(geometry, name, iso_a3) %>% 
+  left_join(data, by = c("iso_a3" = "Iso3")) %>% 
+  drop_na()
+```
+
+```{r}
+remove(data)
+```
+
+# MAPPING
+```{r}
+world_map <- world %>% 
+  filter(admin != "Antarctica") %>% 
+  st_transform(crs = "+proj=robin") %>% 
+  ggplot() +
+  geom_sf(color = "grey") +
+  geom_sf(data = IQmap_data, aes(fill = Average_IQ)) +
+  scale_fill_brewer(type = "seq", palette = 4, direction = -1, aesthetics = "fill") +
+  coord_sf(datum = NA) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"),
+        axis.text.x = element_text(),
+        legend.position = "right") +
+  labs(title = "World Countries IQ",
+       x = NULL, y = NULL,
+       caption = "Average IQ levels per Country")
+
+world_map
+```
+
+# For having different maps depending on the IQ level
+```{r}
+level_maps <- world %>% 
+  filter(admin != "Antarctica") %>% 
+  st_transform(crs = "+proj=robin") %>% 
+  ggplot() +
+  geom_sf(color = "grey") +
+  geom_sf(data = IQmap_data, aes(fill = "Average.IQ")) +
+  facet_wrap(~Average_IQ) +
+  scale_fill_manual(values = "royalblue") +
+  coord_sf(datum = NA) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"),
+        axis.text.x = element_text(),
+        legend.position = "none") +
+  labs(title = "Levels of IQ",
+       x = NULL, y = NULL,
+       caption = "Average IQ levels per Country")
+
+level_maps
+```
+
+
+######################################################
+STATISTICAL ANALYSIS
+
+## 1st HYPOTHESIS: the IQ depends on the geographical zone.
+
+# One-way ANOVA to check whether a correlation between geographical zone and intelligence exists.
+```{r}
+Geo_IQ <- aov(Average.IQ ~ Continent, data = IQdataset)
+summary(Geo_IQ)
+```
+
+# Double check using also IQ levels
+```{r}
+chisq.test(IQdataset$Continent, IQdataset$IQlevel)
+```
+
+# Boxplot of Average IQ over continents
+```{r}
+IQdataset %>% 
+  ggplot(aes(Continent, Average.IQ)) + 
+  geom_boxplot()
+```
+
+# Correlation Continent - number of nobel prices won (to corroborate the racism hypothesis)
+```{r}
+Geo.nobel <- aov(Nobel.Prices ~ Continent, data = IQdataset)
+summary(Geo.nobel)
+#box plot to see the different averages
+IQdataset %>% 
+  ggplot(aes(Continent, Nobel.Prices)) + 
+  geom_col()
+```
+
+# Check whether the difference is due to differences in the literacy rates among countries.Then, check wheter literacy rates may determine different IQ.
+```{r}
+Geo.literacyrate <- aov(Literacy.Rate ~ Continent, data = IQdataset)
+summary(Geo.literacyrate)
+```
+
+```{r}
+lm.IQ.literacyrate <-lm(Average.IQ ~ Literacy.Rate, data = IQdataset)
+summary(lm.IQ.literacyrate)
+```
+# We found out that Literacy rate actually determines the IQ score. Maybe, it is not only literacy rate that matters in a society to determine the IQ.
+
+#############################################################
+## 2nd HYPOTHESIS: the IQ may depend on other qualities of life.
+
+#ANOVA to see whether different geographical zones have different qualities of life.
+```{r}
+Geo_HDI <- aov(HDI..2021. ~ Continent, data = IQdataset)
+summary(Geo_HDI)
+
+IQdataset %>% 
+  ggplot(aes(Continent, HDI..2021.)) + 
+  geom_boxplot()
+
+Geo_GNI <- aov(GNI...2021 ~ Continent, data = IQdataset)
+summary(Geo_GNI)
+
+IQdataset %>% 
+  ggplot(aes(Continent, Average.IQ)) + 
+  geom_boxplot()
+
+Geo_Pop <- aov(Population...2023 ~ Continent, data = IQdataset)
+summary(Geo_Pop)
+```
+#Both HDI and GNI depend on the continent at the 1% level.
+
+# Since quality of life depends on continents, I want to check whether we find a direct correlation between quality of life and intelligence.
+#First, I perform other anovas with the IQ level.
+```{r}
+HDI_IQ <- aov(HDI..2021. ~ IQlevel, data = IQdataset)
+summary(HDI_IQ)
+
+IQdataset %>% 
+  ggplot(aes(IQlevel, HDI..2021.)) + 
+  geom_boxplot()
+
+GNI_IQ <- aov(GNI...2021 ~ IQlevel, data = IQdataset)
+summary(GNI_IQ)
+
+IQdataset %>% 
+  ggplot(aes(Continent, GNI...2021)) + 
+  geom_boxplot()
+```
+
+# Trying also with the average IQ and performing some regression analyses
+```{r}
+lm.IQ.GNI <-lm(Average.IQ ~ GNI...2021, data = IQdataset)
+summary(lm.IQ.GNI)
+
+lm.IQ.HDI <-lm(Average.IQ ~ HDI..2021., data = IQdataset)
+summary(lm.IQ.HDI)
+
+lm.IQ.POP <- lm(Average.IQ ~ HDI..2021. + GNI...2021 + Population...2023, data = IQdataset )
+summary(lm.IQ.POP)
+```
+
+# Here we find out that the effect of the Gross National Income is overcome when adding the Human Development Index, which is highly statisticlaly significant, and the population, whcih is significant at the 1% level.
+
+```{r}
+linear.plot <- ggplot (data = IQdataset, aes (HDI..2021., Average.IQ)) + 
+  geom_point () + 
+  geom_smooth (method='lm')
+
+linear.plot
+```
