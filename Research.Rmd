@@ -1,4 +1,4 @@
-## Packages needed: tidyverse, sf, rnaturalearth, countrycode, ggrepel, RNATURALEARTHDATA
+## Packages needed: tidyverse, sf, rnaturalearth, countrycode, ggrepel, rnaturalearthdata
 ```{r}
 install.packages("tidyverse")
 install.packages("sf")
