@@ -225,3 +225,27 @@ IQdataset %>%
   ggplot(aes(Continent, Average.IQ)) + 
   geom_boxplot()
 ```
+
+# Correlation Continent - number of nobel prices won (to corroborate the racism hypothesis)
+```{r}
+Geo.nobel <- aov(Nobel.Prices ~ Continent, data = IQdataset)
+summary(Geo.nobel)
+#box plot to see the different averages
+IQdataset %>% 
+  ggplot(aes(Continent, Nobel.Prices)) + 
+  geom_col()
+```
+
+# Check whether the difference is due to differences in the literacy rates among countries.Then, check wheter literacy rates may determine different IQ.
+```{r}
+Geo.literacyrate <- aov(Literacy.Rate ~ Continent, data = IQdataset)
+summary(Geo.literacyrate)
+```
+
+```{r}
+lm.IQ.literacyrate <-lm(Average.IQ ~ Literacy.Rate, data = IQdataset)
+summary(lm.IQ.literacyrate)
+```
+# We found out that Literacy rate actually determines the IQ score. Maybe, it is not only literacy rate that matters in a society to determine the IQ.
+
+
