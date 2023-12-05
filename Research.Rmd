@@ -1,0 +1,67 @@
+## Packages needed: tidyverse, sf, rnaturalearth, countrycode, ggrepel, RNATURALEARTHDATA
+```{r}
+install.packages("tidyverse")
+install.packages("sf")
+install.packages("rnaturalearth")
+install.packages("ggrepel")
+install.packages("countrycode")
+install.packages("ggplot2")
+```
+
+```{r}
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(ggrepel)
+library(countrycode)
+library(ggplot2)
+```
+
+#Importing the datasets
+```{r}
+avgIQ <- read.csv("C:/Users/Leila/OneDrive/Desktop/Rproject/AvgIQpercountry.csv")
+EduExp <- read.csv("C:/Users/Leila/OneDrive/Desktop/Rproject/expenditureoneducation.csv")
+IQclass <- read.csv("C:/Users/Leila/OneDrive/Desktop/Rproject/IQclassification.csv")
+```
+
+# Display the datasets
+```{r}
+head(avgIQ)
+head(IQclass)
+head(EduExp)
+```
+
+# Remove both duplicates and n/a
+```{r}
+avgIQ <- avgIQ %>%
+  distinct() %>%
+  drop_na()
+IQclass <- IQclass %>% 
+  distinct() %>% 
+  drop_na()
+EduExp <- EduExp %>% 
+  drop_na()
+
+sum(is.na(avgIQ))
+sum(duplicated(avgIQ))
+sum(is.na(IQclass))
+sum(duplicated(IQclass))
+sum(is.na(EduExp))
+sum(duplicated(EduExp))
+```
+
+# Count number of unique observations
+```{r}
+unique(avgIQ)
+unique(IQclass)
+unique(EduExp)
+```
+
+# Formatting the dataset: changing population into a numeric variable.
+```{r}
+avgIQ$Population...2023 <- as.numeric(as.character(avgIQ$Population...2023))
+class(avgIQ$Population...2023)
+```
+
+
+
