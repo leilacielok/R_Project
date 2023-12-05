@@ -63,5 +63,64 @@ avgIQ$Population...2023 <- as.numeric(as.character(avgIQ$Population...2023))
 class(avgIQ$Population...2023)
 ```
 
+# Manipulating the datasets: merging GovExp to avgIQ dataset
+```{r}
+vars <- c("id", "Rank", "Country", "Average.IQ", "Continent", "Literacy.Rate", "Nobel.Prices", "HDI..2021.", "Mean.years.of.schooling...2021", "GNI...2021", "Population...2023", "Latitude", "Longitude" )
+
+avgIQ <- avgIQ %>% 
+  left_join(EduExp, by = "id") %>% 
+  select(all_of(vars), "GovExp")
+```
+
+#Removing what I don't need anymore
+```{r}
+remove(vars)
+remove(EduExp)
+```
+
+# Data Transformation to create df for level of IQ
+```{r}
+IQdataset <- avgIQ %>% 
+  group_by(id, Country) %>% 
+  mutate(IQlevel = case_when(
+    Average.IQ >= 178.00 ~ "Genius",
+    Average.IQ >= 160.00 ~ "Almost genius",
+    Average.IQ >= 140.00 ~ "Very gifted",
+    Average.IQ >= 130.00 ~ "Gifted",
+    Average.IQ >= 120.00 ~ "Moderately gifted",
+    Average.IQ >= 120.00 ~ "Above average",
+    Average.IQ >= 90.00 ~ "Average intelligence",
+    Average.IQ >= 85.00 ~ "Below average",
+    Average.IQ >= 70.00 ~ "Borderline intellectual functioning",
+        Average.IQ >= 50.00 ~ "Mid intellectual disability",
+    Average.IQ >= 35.00 ~ "Moderate intellectual disability",
+        Average.IQ >= 20.00 ~ "Severe intellectual disability",
+    Average.IQ >= 0.00 ~ "Profound intellectual disability", )) 
+
+head(IQdataset)
+
+```
+
+```{r}
+remove(avgIQ)
+```
+
+# Ordering the IQ dataset 
+```{r}
+IQdataset <- IQdataset %>% 
+  relocate(Continent, Latitude, Longitude, Population...2023, .before = Average.IQ) %>% 
+  relocate(Rank, IQlevel, .after = Average.IQ) %>% 
+  relocate(HDI..2021., .before = GNI...2021)
+head(IQdataset)
+```
+
+# I want to calculate the percentages I have in my sample in order to confirm its reliability.
+```{r}
+# First, I calculate frequencies:
+ftable <- fct_count(IQdataset$IQlevel)
+# then, I calculate the percentages:
+round(prop.table(ftable$n)*100, digits = 2)
+```
+
 
 
