@@ -249,3 +249,26 @@ summary(lm.IQ.literacyrate)
 # We found out that Literacy rate actually determines the IQ score. Maybe, it is not only literacy rate that matters in a society to determine the IQ.
 
 
+## ###########################################################
+## 2nd HYPOTHESIS: the IQ may depend on the quality of life.
+
+#ANOVA and box plots to see whether different geographical zones have different qualities of life.
+```{r}
+Geo_HDI <- aov(HDI..2021. ~ Continent, data = IQdataset)
+summary(Geo_HDI)
+
+IQdataset %>% 
+  ggplot(aes(Continent, HDI..2021.)) + 
+  geom_boxplot()
+
+Geo_GNI <- aov(GNI...2021 ~ Continent, data = IQdataset)
+summary(Geo_GNI)
+
+IQdataset %>% 
+  ggplot(aes(Continent, Average.IQ)) + 
+  geom_boxplot()
+
+Geo_Pop <- aov(Population...2023 ~ Continent, data = IQdataset)
+summary(Geo_Pop)
+```
+#Both HDI and GNI scores depend on the continent. Statistically significant relation at the 1% level.
