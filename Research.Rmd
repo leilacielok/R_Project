@@ -203,4 +203,25 @@ level_maps
 ```
 
 
+## ####################################################
+##STATISTICAL ANALYSIS
 
+## 1st HYPOTHESIS: the IQ depends on the geographical zone.
+
+# One-way ANOVA to check whether a correlation between geographical zone and intelligence exists.
+```{r}
+Geo_IQ <- aov(Average.IQ ~ Continent, data = IQdataset)
+summary(Geo_IQ)
+```
+
+# Double check using also IQ levels
+```{r}
+chisq.test(IQdataset$Continent, IQdataset$IQlevel)
+```
+
+# Boxplot of Average IQ over continents
+```{r}
+IQdataset %>% 
+  ggplot(aes(Continent, Average.IQ)) + 
+  geom_boxplot()
+```
