@@ -272,3 +272,50 @@ Geo_Pop <- aov(Population...2023 ~ Continent, data = IQdataset)
 summary(Geo_Pop)
 ```
 #Both HDI and GNI scores depend on the continent. Statistically significant relation at the 1% level.
+
+
+## Since quality of life depends on continents, I want to check whether we find a direct correlation between quality of life and intelligence.
+
+# First, I perform other anova tests with the IQ level.
+```{r}
+HDI_IQ <- aov(HDI..2021. ~ IQlevel, data = IQdataset)
+summary(HDI_IQ)
+
+IQdataset %>% 
+  ggplot(aes(IQlevel, HDI..2021.)) + 
+  geom_boxplot()
+
+GNI_IQ <- aov(GNI...2021 ~ IQlevel, data = IQdataset)
+summary(GNI_IQ)
+
+IQdataset %>% 
+  ggplot(aes(Continent, GNI...2021)) + 
+  geom_boxplot()
+```
+
+# Trying also with the average IQ and performing some regression analyses
+```{r}
+lm.IQ.GNI <-lm(Average.IQ ~ GNI...2021, data = IQdataset)
+summary(lm.IQ.GNI)
+
+lm.IQ.HDI <-lm(Average.IQ ~ HDI..2021., data = IQdataset)
+summary(lm.IQ.HDI)
+
+lm.IQ.POP <- lm(Average.IQ ~ HDI..2021. + GNI...2021 + Population...2023, data = IQdataset )
+summary(lm.IQ.POP)
+```
+
+# Here we find out that the effect of the Gross National Income is overcome when adding the Human Development Index, which is highly statisticlaly significant, and the population, whcih is significant at the 1% level.
+
+```{r}
+linear.plot <- ggplot (data = IQdataset, aes (HDI..2021., Average.IQ)) + 
+  geom_point () + 
+  geom_smooth (method='lm')
+
+linear.plot
+```
+
+
+
+
+
