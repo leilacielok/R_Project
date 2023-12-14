@@ -237,21 +237,20 @@ IQdataset %>%
 ```
 #with colour=blue I can see that many european countries are on the same level as most asian ones, so probably it is not the continent of belonging itself that influences the level of IQ. What is that determines the differences among Countries in the same continent?
 ```{r}
-
 lm.IQxcontinent.literacyrate <-lm(Average.IQ ~ Literacy.Rate:Continent,  data = IQdataset)
 summary(lm.IQxcontinent.literacyrate)
 
-```
+#In effect, the literacy rate changes depending on which Continent we take into account:
+lm.Litratexcontinent <- lm(Literacy.Rate ~ Continent, data = IQdataset)
+summary(lm.Litratexcontinent)
 
-
-
-# Check whether the difference is due to differences in the literacy rates among countries.Then, check wheter literacy rates may determine different IQ.
-```{r}
-Geo.literacyrate <- aov(Literacy.Rate ~ Continent, data = IQdataset)
+anova.literacyrate <- aov(Literacy.Rate ~ Continent, data = IQdataset)
 summary(Geo.literacyrate)
+
 ```
 
 ```{r}
+#Depending on the literacy rate, a Continent will have a higher or lower IQ average
 lm.IQ.literacyrate <-lm(Average.IQ ~ Literacy.Rate, data = IQdataset)
 summary(lm.IQ.literacyrate)
 ```
