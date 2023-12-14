@@ -305,20 +305,23 @@ IQdataset %>%
   ggplot(aes(Continent, GNI...2021)) + 
   geom_boxplot()
 ```
-
 # Trying also with the average IQ and performing some regression analyses
 ```{r}
-lm.IQ.GNI <-lm(Average.IQ ~ GNI...2021, data = IQdataset)
-summary(lm.IQ.GNI)
+lm.IQxGNI <- lm(Average.IQ ~ GNI...2021, data = IQdataset)
+summary(lm.IQxGNI)
 
-lm.IQ.HDI <-lm(Average.IQ ~ HDI..2021., data = IQdataset)
-summary(lm.IQ.HDI)
+lm.IQxHDI <- lm(Average.IQ ~ HDI..2021., data = IQdataset)
+summary(lm.IQxHDI)
 
-lm.IQ.POP <- lm(Average.IQ ~ HDI..2021. + GNI...2021 + Population...2023, data = IQdataset )
-summary(lm.IQ.POP)
+final.lm <- lm(Average.IQ ~ HDI..2021. + GNI...2021 + Population...2023, data = IQdataset )
+summary(final.lm)
 ```
-
 # Here we find out that the effect of the Gross National Income is overcome when adding the Human Development Index, which is highly statisticlaly significant, and the population, whcih is significant at the 1% level.
+# Endogeneity: Maybe the reason for this finding is that GNI and HDI are directly related.
+```{r}
+lm.HDIxGNI <- lm(HDI..2021. ~ GNI...2021, data = IQdataset)
+summary(lm.HDIxGNI)
+```
 
 ```{r}
 linear.plot <- ggplot (data = IQdataset, aes (HDI..2021., Average.IQ)) + 
