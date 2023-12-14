@@ -272,8 +272,6 @@ summary(Geo_GNI)
 #Population is not significant
 Geo_Pop <- aov(Population...2023 ~ Continent, data = IQdataset)
 summary(Geo_Pop)
-lm(Population...2023 ~ Continent, data = IQdataset)
-summary(lm)
 ```
 #Both HDI and GNI scores depend on the continent. Statistically significant relation at the 1% level.
 
@@ -318,9 +316,6 @@ summary(lm.IQxGNI)
 lm.IQxHDI <- lm(Average.IQ ~ HDI..2021., data = IQdataset)
 summary(lm.IQxHDI)
 
-final.lm <- lm(Average.IQ ~ HDI..2021. + GNI...2021 + Population...2023, data = IQdataset )
-summary(final.lm)
-
 linear.plot <- ggplot (data = IQdataset, aes (HDI..2021., Average.IQ)) + 
   geom_point () + 
   geom_smooth (method='lm')
@@ -334,10 +329,13 @@ summary(lm.HDIxGNI)
 ```
 
 ```{r}
+final.lm <- lm(Average.IQ ~ HDI..2021. + GNI...2021, data = IQdataset )
+summary(final.lm)
+
 scatter3D <- scatterplot3d(cbind(x=IQdataset$HDI..2021., z=IQdataset$GNI...2021, y=IQdataset$Average.IQ), xlab="HDI",
                            ylab="GNI", zlab="Average IQ", type ="p",
-                           color="blue", angle=45, pch=20, main = "IQ over Quality of life", axis = TRUE, tick.marks = TRUE,
-                           highlight.3d = TRUE)
+                          angle=45, pch=20, main = "IQ over Quality of life", axis = TRUE, tick.marks = 
+                          TRUE, highlight.3d = TRUE)
 ```
 
 
