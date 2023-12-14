@@ -235,8 +235,11 @@ IQdataset %>%
   ggplot(aes(Continent, Nobel.Prices)) + 
   geom_col(fill="lightblue", colour="blue")
 ```
-#with colour=blue I can see that many european countries are on the same level as most asian ones. What is that determines the differences among countries in the same continent?
+#with colour=blue I can see that many european countries are on the same level as most asian ones, so probably it is not the continent of belonging itself that influences the level of IQ. What is that determines the differences among Countries in the same continent?
 ```{r}
+
+lm.IQxcontinent.literacyrate <-lm(Average.IQ ~ Literacy.Rate:Continent,  data = IQdataset)
+summary(lm.IQxcontinent.literacyrate)
 
 ```
 
