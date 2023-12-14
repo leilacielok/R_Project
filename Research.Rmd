@@ -203,7 +203,7 @@ level_maps
 ```
 
 
-## ####################################################
+# #####################################################
 ##STATISTICAL ANALYSIS
 
 ## 1st HYPOTHESIS: the IQ depends on the geographical zone.
@@ -223,7 +223,7 @@ chisq.test(IQdataset$Continent, IQdataset$IQlevel)
 ```{r}
 IQdataset %>% 
   ggplot(aes(Continent, Average.IQ)) + 
-  geom_boxplot()
+  geom_boxplot(fill="lightblue", colour="blue")
 ```
 
 # Correlation Continent - number of nobel prices won (to corroborate the racism hypothesis)
@@ -233,8 +233,14 @@ summary(Geo.nobel)
 #box plot to see the different averages
 IQdataset %>% 
   ggplot(aes(Continent, Nobel.Prices)) + 
-  geom_col()
+  geom_col(fill="lightblue", colour="blue")
 ```
+#with colour=blue I can see that many european countries are on the same level as most asian ones. What is that determines the differences among countries in the same continent?
+```{r}
+
+```
+
+
 
 # Check whether the difference is due to differences in the literacy rates among countries.Then, check wheter literacy rates may determine different IQ.
 ```{r}
