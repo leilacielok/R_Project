@@ -243,10 +243,6 @@ summary(lm.IQxcontinent.literacyrate)
 #In effect, the literacy rate changes depending on which Continent we take into account:
 lm.Litratexcontinent <- lm(Literacy.Rate ~ Continent, data = IQdataset)
 summary(lm.Litratexcontinent)
-
-anova.literacyrate <- aov(Literacy.Rate ~ Continent, data = IQdataset)
-summary(Geo.literacyrate)
-
 ```
 
 ```{r}
@@ -265,23 +261,32 @@ summary(lm.IQ.literacyrate)
 Geo_HDI <- aov(HDI..2021. ~ Continent, data = IQdataset)
 summary(Geo_HDI)
 
+Geo_GNI <- aov(GNI...2021 ~ Continent, data = IQdataset)
+summary(Geo_GNI)
+
+#Population is not significant
+Geo_Pop <- aov(Population...2023 ~ Continent, data = IQdataset)
+summary(Geo_Pop)
+lm(Population...2023 ~ Continent, data = IQdataset)
+summary(lm)
+```
+#Both HDI and GNI scores depend on the continent. Statistically significant relation at the 1% level.
+
+```{r}
+#Visual comparison: GNI, HDI, IQ
+IQdataset %>% 
+  ggplot(aes(Continent, GNI...2021)) + 
+  geom_boxplot(outlier.shape = NA) +
+  coord_cartesian(ylim=c(0, 85000))
+
 IQdataset %>% 
   ggplot(aes(Continent, HDI..2021.)) + 
   geom_boxplot()
 
-Geo_GNI <- aov(GNI...2021 ~ Continent, data = IQdataset)
-summary(Geo_GNI)
-
 IQdataset %>% 
   ggplot(aes(Continent, Average.IQ)) + 
   geom_boxplot()
-
-Geo_Pop <- aov(Population...2023 ~ Continent, data = IQdataset)
-summary(Geo_Pop)
 ```
-#Both HDI and GNI scores depend on the continent. Statistically significant relation at the 1% level.
-
-
 ## Since quality of life depends on continents, I want to check whether we find a direct correlation between quality of life and intelligence.
 
 # First, I perform other anova tests with the IQ level.
@@ -289,12 +294,12 @@ summary(Geo_Pop)
 HDI_IQ <- aov(HDI..2021. ~ IQlevel, data = IQdataset)
 summary(HDI_IQ)
 
+GNI_IQ <- aov(GNI...2021 ~ IQlevel, data = IQdataset)
+summary(GNI_IQ)
+
 IQdataset %>% 
   ggplot(aes(IQlevel, HDI..2021.)) + 
   geom_boxplot()
-
-GNI_IQ <- aov(GNI...2021 ~ IQlevel, data = IQdataset)
-summary(GNI_IQ)
 
 IQdataset %>% 
   ggplot(aes(Continent, GNI...2021)) + 
