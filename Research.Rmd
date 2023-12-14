@@ -15,6 +15,7 @@ library(rnaturalearth)
 library(ggrepel)
 library(countrycode)
 library(ggplot2)
+library(scatterplot3d)
 ```
 
 #Importing the datasets
@@ -249,6 +250,10 @@ summary(lm.Litratexcontinent)
 #Depending on the literacy rate, a Continent will have a higher or lower IQ average
 lm.IQ.literacyrate <-lm(Average.IQ ~ Literacy.Rate, data = IQdataset)
 summary(lm.IQ.literacyrate)
+
+ggplot (data = IQdataset, aes (Literacy.Rate, Average.IQ)) + 
+  geom_point () + 
+  geom_smooth (method='lm')
 ```
 # We found out that Literacy rate actually determines the IQ score. Maybe, it is not only literacy rate that matters in a society to determine the IQ.
 
@@ -315,6 +320,11 @@ summary(lm.IQxHDI)
 
 final.lm <- lm(Average.IQ ~ HDI..2021. + GNI...2021 + Population...2023, data = IQdataset )
 summary(final.lm)
+
+scatter3D <- scatterplot3d(cbind(x=IQdataset$HDI..2021., z=IQdataset$GNI...2021, y=IQdataset$Average.IQ), xlab="HDI",
+                           ylab="GNI", zlab="Average IQ", type ="p",
+                           color="blue", angle=45, pch=16)
+
 ```
 # Here we find out that the effect of the Gross National Income is overcome when adding the Human Development Index, which is highly statisticlaly significant, and the population, whcih is significant at the 1% level.
 # Endogeneity: Maybe the reason for this finding is that GNI and HDI are directly related.
