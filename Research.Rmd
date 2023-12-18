@@ -1,4 +1,4 @@
-## Packages needed: tidyverse, sf, rnaturalearth, countrycode, ggrepel, rnaturalearthdata
+## Packages needed: tidyverse, sf, rnaturalearth, countrycode, ggrepel, ggplot2, scatterplot3d
 ```{r}
 install.packages("tidyverse")
 install.packages("sf")
@@ -6,6 +6,7 @@ install.packages("rnaturalearth")
 install.packages("ggrepel")
 install.packages("countrycode")
 install.packages("ggplot2")
+install.packages("scatterplot3d")
 ```
 
 ```{r}
@@ -231,7 +232,7 @@ IQdataset %>%
 ```{r}
 Geo.nobel <- aov(Nobel.Prices ~ Continent, data = IQdataset)
 summary(Geo.nobel)
-#box plot to see the different averages
+#column plot to see the different averages
 IQdataset %>% 
   ggplot(aes(Continent, Nobel.Prices)) + 
   geom_col(fill="lightblue", colour="blue")
@@ -316,16 +317,21 @@ summary(lm.IQxGNI)
 lm.IQxHDI <- lm(Average.IQ ~ HDI..2021., data = IQdataset)
 summary(lm.IQxHDI)
 
-linear.plot <- ggplot (data = IQdataset, aes (HDI..2021., Average.IQ)) + 
+linear.plot.IQ_HDI <- ggplot (data = IQdataset, aes (HDI..2021., Average.IQ)) + 
   geom_point () + 
   geom_smooth (method='lm')
-linear.plot
+linear.plot.IQ_HDI
 ```
-# Before, we found out that the effect of the Gross National Income was overcome when adding the Human Development Index, which is highly statisticlaly significant, and the population, whcih is significant at the 1% level.
+# Before, we found out that the effect of the Gross National Income was overcome when adding the Human Development Index, which is highly statistically significant, and the population, whcih is significant at the 1% level.
 # Endogeneity: Maybe the reason for this finding is that GNI and HDI are directly related.
 ```{r}
 lm.HDIxGNI <- lm(HDI..2021. ~ GNI...2021, data = IQdataset)
 summary(lm.HDIxGNI)
+
+linear.plot.HDI_GNI <- ggplot (data = IQdataset, aes (HDI..2021., GNI...2021)) + 
+  geom_point () + 
+  geom_smooth (method=NULL)
+linear.plot.HDI_GNI
 ```
 
 ```{r}
